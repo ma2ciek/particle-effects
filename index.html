@@ -1,0 +1,52 @@
+<html>
+	<head>
+		<link  href="./style.css" rel="stylesheet">
+		<script src="./utils.js"></script>
+		<script src="classes/EventEmitter.js"></script>
+		<script src="classes/Vector.js"></script>
+		<script src="classes/Color.js"></script>
+		<script src="classes/Gradient.js"></script>
+		<script src="classes/ColorPicker.js"></script>
+
+		<script src="classes/Settings.js"></script>
+		<script src="classes/EffectsGUI.js"></script>
+
+		<script src="classes/Timer.js"></script>
+		<script src="classes/Particle.js"></script>
+		<script src="classes/ParticularEffect.js"></script>
+
+		<script src="classes/Effects/Fireball.js"></script>
+		<script src="classes/Effects/Spark.js"></script>
+		<script src="./main.js"></script>
+	</head>
+	<body>
+		<canvas></canvas>
+		<div id ="left-side">
+			<h3>Canvas Stats</h3>
+			<div id="labels">
+				<div>
+					APS: 
+					<span id="time"></span>
+				</div>
+				<div>
+					FPS: 
+					<span id="fps"></span>
+				</div>
+			</div>
+
+			<h3>Effects</h3>
+			<ul id="effects"></ul>
+
+			<h3>Effect options</h3>
+			<div id="effect-options" class="options"></div>
+
+			<h3>Particles options</h3>
+			<div id="particles-options" class="options"></div>
+			
+			<h3>Gradient</h3>
+			<div id="gradient"></div>
+
+			<div id="console"></div>
+		</div>
+	</body>
+</html>

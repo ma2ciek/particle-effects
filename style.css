@@ -1,0 +1,109 @@
+body {
+	margin: 0;
+	font-family: monospace;
+	overflow: hidden;
+}
+canvas {
+	cursor: crosshair;
+	position: absolute;
+	background: black;
+}
+div#left-side {
+	padding: 10px;
+    box-sizing: border-box;
+    position: relative;
+    height: 100%;
+    overflow-y: auto;
+}
+
+h3 {
+	margin: 10px 0 5px;
+	color: #333;
+	font-family: Lato;
+}
+
+h3:first-child {
+	margin-top: 0;
+}
+
+h3 + div {			
+	padding-left: 10px;
+}
+
+#effects {
+	margin: 0;
+	padding: 0;
+}
+
+#effects li {
+	list-style: none;
+	display: inline-block;
+}
+
+#effects li a {
+	text-decoration: none;
+	color: black;
+	display: inline-block;
+	padding: 3px 6px;
+	font-size: 15px;
+}
+#effects li a.active {
+	background: #AAA;
+	color: white;
+}
+
+.options > div {
+	margin: 5px;
+	height: 20px;
+	line-height: 20px;
+	display: flex;
+}
+
+.options > div > label {
+	min-width: 140px;
+}
+
+.options > div.range > input[type="text"] {
+	width: 70px;
+	border: 1px solid #555;
+	background-color: #08d;
+	border-radius: 10px;
+	text-align: center;
+	color: white;
+	margin: 0 5px;
+	outline: none !important;
+
+	font-family: monospace;
+	font-size: 12px;
+}
+
+.options > div.text > input[type="text"] {
+	width: 200;
+	border: none;
+	border-bottom: 1px solid #AAA;
+	outline: none;
+	text-align: center;
+	font-family: monospace;
+	font-size: 12px;
+}
+
+.options > div.text > input[type="text"]:focus {
+	border-bottom: 1px solid #09f;
+}
+
+div.color {
+	display: flex;
+}
+
+div.color div.color-box {
+	width: 100px;
+	cursor: pointer;
+}
+
+
+
+#color-picker {
+	position: absolute;
+	border-radius: 500px;
+	cursor: pointer;
+}
