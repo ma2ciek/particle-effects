@@ -32,12 +32,9 @@ Gradient.prototype.getColor = function(value) {
 	return new Color(red, green, blue, opacity);
 };
 
-Gradient.prototype.addColorStop = function(value) {
-	var colorValue = Array.prototype.slice.call(arguments, 1);
-	if(typeof colorValue[0] === 'object') 
-		colorValue = colorValue[0];
-	else
-		var color = new Color(colorValue);
+Gradient.prototype.addColorStop = function(value, hexColor) {
+	var color = Color.fromHex(hexColor);
+
 	for (var i = 0; i < this._thresholds.length; i++) {
 		if (value < this._thresholds[i].value)
 			break;

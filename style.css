@@ -30,26 +30,42 @@ h3 + div {
 	padding-left: 10px;
 }
 
-#effects {
-	margin: 0;
-	padding: 0;
-}
 
-#effects li {
-	list-style: none;
-	display: inline-block;
-}
-
-#effects li a {
+button, .button {
 	text-decoration: none;
 	color: black;
 	display: inline-block;
 	padding: 3px 6px;
 	font-size: 15px;
+	margin: 2px 4px;
+	border: 1px solid rgba(0,0,0,0.2);
+	cursor: pointer;
 }
-#effects li a.active {
-	background: #AAA;
+button:hover, .button:hover {
+	background: #DEF;
+}
+button.active, .button.active {
+	background: #9AB;
 	color: white;
+}
+
+#effects {
+	margin: 0;
+	padding: 0;
+}
+
+#remove-effects {
+	background: #E77;
+	color: white;
+}
+
+#remove-effects:hover {
+	background: #E55;
+}
+
+#effects li {
+	list-style: none;
+	display: inline-block;
 }
 
 .options > div {
@@ -98,9 +114,12 @@ div.color {
 div.color div.color-box {
 	width: 100px;
 	cursor: pointer;
+	box-sizing: border-box;
 }
 
-
+div.color div.color-box.active {
+	border: 2px solid;
+}
 
 #color-picker {
 	position: absolute;

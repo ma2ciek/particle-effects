@@ -1,40 +1,35 @@
 var ColorPicker = (function() {
 
-	var exist;
 	var canvas, ctx;
 	var position = {}
 	var radius;
-	var currentColor;
 	var currentInstance;
-	var ee = new EventEmitter();
-
+	var rainbow;
 
 	function ColorPicker(_center, _radius, _currentColor) {
 		EventEmitter.call(this);
-		console.log(this);
-		this.dispatch();
+
 		position.x = _center.x;
 		position.y = _center.y;
 		radius = _radius;
 
-		if (currentInstance) {
+		currentInstance = this;
+
+		if (canvas) {
 			moveToNewPosition();
 		} else {
-			currentInstance = this;
 			createCanvas();
 			moveToNewPosition();
-			createRainbow();
+			rainbow = new Rainbow();
 		}
-		showCanvas();
+		rainbow.draw();
+		checkRainbowPixel(_currentColor);
 
-		this.setColor(_currentColor);
+		// To be sure that events bubble up:
+		setTimeout(showCanvas, 0);
 	};
-	copy(Color.prototype, new EventEmitter);
-
-	ColorPicker.prototype.setColor = function(_currentColor) {
-		// to implement
-		currentColor = _currentColor;
-	}
+	ColorPicker.prototype = new EventEmitter();
+	ColorPicker.prototype.constructor = ColorPicker;
 
 	function createCanvas() {
 		canvas = document.createElement('canvas');
@@ -47,63 +42,125 @@ var ColorPicker = (function() {
 
 	function moveToNewPosition() {
 		var style = canvas.style;
-		style.left = (position.x - radius) | 0 + 'px';
-		style.top = (position.y - radius) | 0 + 'px';
+		style.left = ((position.x - radius) | 0) + 'px';
+		style.top = ((position.y - radius) | 0) + 'px';
 	}
 
-	function angleDistance(ang1, ang2) { // angles are form 0 to 2
-		diff = (ang1 - ang2) % 2;
-		diff = Math.abs(diff);
-		return diff <= 1 ?
-			diff :
-			2 - diff;
-	}
 
-	function createRainbow() {
-		var diameter = radius * 2;
-		var imageData = ctx.createImageData(diameter, diameter);
-		var pixels = new Uint32Array(imageData.data.buffer);
+	function Rainbow() {
+		this.imgData = ctx.createImageData(radius << 1, radius << 1);
+		this.pixels = new Uint32Array(this.imgData.data.buffer);
+		var ratio = 255 / radius;
 
-		var ratio = 255 / diameter;
-
-
-		for (var i = 0; i < pixels.length; i++) {
-			var x = i % diameter;
-			var y = i / diameter | 0;
-
-			var v = new Vector([radius - x, radius - y]);
-
-			var distRatio = v.size * 505 / diameter;
-			if (distRatio > 255)
+		for (var i = 0; i < this.pixels.length; i++) {
+			var v = Vector.createFromFlapArray(radius, i);
+			if (v.size > radius)
 				continue;
 
-			var angleByPi = Math.atan2(v[1], v[0]) / Math.PI + 1; // (from 0 to 2)
+			var distRatio = v.size * ratio;
+			var RGB = this.createRGBFromVector(v);
+			this.setPixel(i, RGB, distRatio);
+		}
+	}
 
-			var colors = [ //rgb;
-				angleDistance(3 / 6, angleByPi),
-				angleDistance(7 / 6, angleByPi),
-				angleDistance(11 / 6, angleByPi),
-			];
+	Rainbow.prototype.draw = function() {
+		ctx.putImageData(this.imgData, 0, 0);
+	};
 
-			for (var j = 0; j < colors.length; j++) {
-				colors[j] *= 3;
-				if (colors[j] < 1)
-					colors[j] = 0;
-				else if (colors[j] > 2)
-					colors[j] = 1
-				else {
-					colors[j] = colors[j] - 1;
-				}
+
+
+	Rainbow.prototype.createRGBFromVector = function(vector) {
+		var angleByPi = this.calculateAngle(vector);
+		var RGB = this.createPrimaryColorsFromAngle(angleByPi);
+		this.separatePrimaryColors(RGB);
+		return RGB;
+	};
+
+	// returns values from 0 to 2
+	Rainbow.prototype.calculateAngle = function(vector) {
+		return new AngleByPi(Math.atan2(vector[1], vector[0]) / Math.PI + 1);
+	};
+
+	Rainbow.prototype.createPrimaryColorsFromAngle = function(angleByPi) {
+		return [
+			angleByPi.distanceFrom(3 / 6),
+			angleByPi.distanceFrom(7 / 6),
+			angleByPi.distanceFrom(11 / 6)
+		];
+	};
+
+	Rainbow.prototype.separatePrimaryColors = function(RGB) {
+		for (var j = 0; j < RGB.length; j++) {
+			RGB[j] *= 3;
+			if (RGB[j] < 1)
+				RGB[j] = 0;
+			else if (RGB[j] > 2)
+				RGB[j] = 1;
+			else {
+				RGB[j] = RGB[j] - 1;
 			}
+		}
+	};
 
-			pixels[i] =
-				colors[0] * distRatio | // red
-				colors[1] * distRatio << 8 | // green
-				colors[2] * distRatio << 16 | // blue
-				255 << 24; // opacity
+	Rainbow.prototype.setPixel = function(i, RGB, distRatio) {
+		this.pixels[i] =
+			RGB[0] * distRatio | // red
+			RGB[1] * distRatio << 8 | // green
+			RGB[2] * distRatio << 16 | // blue
+			255 << 24; // opacity
+	}
+
+	function checkRainbowPixel(color) {
+		var c = Color.fromHex(color).getRGB();
+		var min = Math.min.apply(null, c);
+		var max = Math.max.apply(null, c);
+
+		if(min === max) {
+			addCheck(new Point(radius | 0, radius | 0));
+			return;
 		}
 
-		ctx.putImageData(imageData, 0, 0);
+		var minIndex = c.indexOf(min);
+
+		var r = max / 255 * radius;
+
+		var afterMin = (minIndex + 1) % 3;
+		var beforeMin = (minIndex + 2) % 3;
+
+		var a = new AngleByPi(3 / 2 - minIndex * 2 / 3);
+		a.add((c[afterMin] - c[beforeMin]) / max / 3);
+		a.normalize();
+
+		var x = r * Math.cos(a.angle * Math.PI);
+		var y = -r * Math.sin(a.angle * Math.PI);
+
+		addCheck(new Point(x+radius | 0, y+radius | 0), c);
+	}
+
+	function addCheck(p, color) {
+		var c = color || ctx.getImageData(p.x, p.y, 1, 1).data;
+		var r = 25;
+
+		var imgData = ctx.getImageData(p.x - r, p.y - r, 2 * r, 2 * r);
+		var pixels = new Uint32Array(imgData.data.buffer);
+		for (var i = 0; i < pixels.length; i++) {
+			var v = Vector.createFromFlapArray(r, i);
+			if (v.size > r || v.size < r * 3/4)
+				continue;
+
+			pixels[i] = c[0] | (c[1] << 8) | (c[2] << 16) | (255 << 24);	
+		}
+		ctx.putImageData(imgData, p.x - r, p.y - r);
+	}
+
+	var clicked = false;
+
+	function mouseDown () {
+		clicked = true;
+	}
+
+	function mouseUp() {
+		clicked = false;
 	}
 
 	function showCanvas() {
@@ -111,6 +168,10 @@ var ColorPicker = (function() {
 		canvas.addEventListener('click', getColor);
 		document.addEventListener('click', hideCanvas);
 		document.addEventListener('contextmenu', hideCanvas);
+
+		document.addEventListener('mousemove', mouseMove);
+		canvas.addEventListener('mousedown', mouseDown);
+		canvas.addEventListener('mouseup', mouseUp);
 	}
 
 	function hideCanvas(e) {
@@ -118,17 +179,36 @@ var ColorPicker = (function() {
 		canvas.removeEventListener('click', getColor);
 		document.removeEventListener('click', hideCanvas);
 		document.removeEventListener('contextmenu', hideCanvas);
+
+		document.removeEventListener('mousemove', mouseMove);
+		canvas.removeEventListener('mousedown', mouseDown);
+		canvas.removeEventListener('mouseup', mouseUp);
+
 		e && e.preventDefault();
 	}
 
 	function getColor(e) {
-		console.log(currentInstance);
 		var point = new Point(e.pageX - canvas.offsetLeft, e.pageY - canvas.offsetTop);
 		var px = ctx.getImageData(point.x, point.y, 1, 1).data;
 		if (px[3] === 255) {
-			currentInstance.trigger('color', px);
+			var color = Color.fromArr(px);
+
+			rainbow.draw();
+			addCheck(point);
+
+			currentInstance.emit('color', color);
 			e.stopPropagation();
 		}
+	}
+
+	function mouseMove(e) {
+		var point = new Point(e.pageX - canvas.offsetLeft, e.pageY - canvas.offsetTop);
+
+		if(clicked) {
+			getColor.call(e.target, e);
+		}
+
+
 	}
 
 	return ColorPicker;

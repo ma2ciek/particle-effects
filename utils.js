@@ -1,8 +1,3 @@
-function Point(x, y) {
-	this.x = x;
-	this.y = y;
-}
-
 function extend(subConstructor, superConstructor) {
 	subConstructor.prototype = Object.create(superConstructor.prototype, {
 		constructor: {

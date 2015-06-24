@@ -57,7 +57,7 @@ _p.setPropValue = function (property, value) {
 
 	this._options[property].value = value;
 	this._save();
-	this.trigger(property, value);
+	this.emit(property, value);
 };
 
 _p._loadSettingsFromStorage = function () {

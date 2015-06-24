@@ -10,15 +10,14 @@ EventEmitter.prototype.addEventListener = function (eventType, eventHandler) {
 	this._events[eventType].push(eventHandler.bind(this));
 };
 
-EventEmitter.prototype.trigger = function (eventType) {
-	var events = this._events[eventType]
+EventEmitter.prototype.emit = function (eventType) {
+	var events = this._events[eventType];
 	if (!events)
 		return;
 	var args = Array.prototype.slice.call(arguments, 1);
 	for (var i = 0; i < events.length; i++) {
 		events[i].apply(this, args);
 	}
-	// this._events[eventType].length = 0;
 };
 
 EventEmitter.prototype.removeEventListener = function (eventType, eventHandler) {
@@ -34,7 +33,6 @@ EventEmitter.prototype.removeEventListener = function (eventType, eventHandler) 
 };
 
 EventEmitter.prototype.dispatch = function (eventType) {
-	console.log(this);
 	if (eventType in this._events)
 		this._events[eventType].length = 0;
 	else

@@ -9,6 +9,7 @@ EffectsGUI.prototype.init = function() {
 	this._effectsList = this._getEffectsList();
 	this._createLabels();
 	this._showOptions();
+	this._activateButtons();
 };
 
 EffectsGUI.prototype._getEffectsList = function() {
@@ -28,8 +29,8 @@ EffectsGUI.prototype._createEffectsButtons = function(name) {
 	var a = document.createElement('a');
 	a.href = '#';
 	a.innerText = name;
+	a.classList.add('button');
 	a.addEventListener('click', function(e) {
-		console.log(e, this);
 		var prevActive = this._effectsList.getElementsByClassName('active')[0];
 		prevActive && prevActive.classList.remove('active');
 		e.target.classList.add('active');
@@ -45,13 +46,14 @@ EffectsGUI.prototype._showOptions = function() {
 	this._drawOptionsRecord($('#effect-options')[0], 'params');
 	this._drawOptionsRecord($('#particles-options')[0], 'particleParams');
 	this._drawGradient($('#gradient')[0], 'gradient');
+	this._addNewColorStopButton($('#gradient')[0], 'gradient');
 }
 
 EffectsGUI.prototype._drawOptionsRecord = function(div_options, _jsObject) {
 	var effect = this._currentEffect;
 	var params = effect[_jsObject];
 
-	while (div_options.firstChild) 
+	while (div_options.firstChild)
 		div_options.removeChild(div_options.firstChild);
 
 	var record;
@@ -59,9 +61,9 @@ EffectsGUI.prototype._drawOptionsRecord = function(div_options, _jsObject) {
 
 		var param = params[paramName];
 
-		if (typeof param === 'number') 
+		if (typeof param === 'number')
 			record = this._createNumberRecord(effect, params, paramName);
-		else if (typeof param === 'string') 
+		else if (typeof param === 'string')
 			record = this._createTextRecord(effect, params, paramName);
 
 		div_options.appendChild(record);
@@ -72,13 +74,13 @@ EffectsGUI.prototype._createNumberRecord = function(effect, params, paramName) {
 	var value = params[paramName];
 	var div = document.createElement('div');
 	var label = document.createElement('label');
-	var textInput = this._createTextInput(value);
-	var input = this._createRangeInput(value);
+	var textInput = new Input('text', value).get();
+	var rangeInput = new Input('range', value).get();
 
 	label.innerText = paramName + ':';
 
 	var self = this;
-	input.onchange = input.oninput = function() {
+	rangeInput.onchange = rangeInput.oninput = function() {
 		var val = Number(this.value);
 		textInput.value = val;
 		params[paramName] = val;
@@ -87,13 +89,13 @@ EffectsGUI.prototype._createNumberRecord = function(effect, params, paramName) {
 
 	textInput.onchange = function() {
 		var val = Number(this.value);
-		input.value = val;
+		rangeInput.value = val;
 		params[paramName] = val;
 		self._tryInitEffect();
 	};
 
 	div.appendChild(label);
-	div.appendChild(input);
+	div.appendChild(rangeInput);
 	div.appendChild(textInput);
 
 	div.classList.add('range');
@@ -105,11 +107,11 @@ EffectsGUI.prototype._createTextRecord = function(effect, params, paramName) {
 	var value = params[paramName];
 	var div = document.createElement('div');
 	var label = document.createElement('label');
-	
-	var input = this._createTextInput(value);
+
+	var input = new Input('text', value).get();
 
 	label.innerText = paramName + ':';
-	
+
 	var self = this;
 	input.onchange = function() {
 		var val = this.value;
@@ -125,43 +127,61 @@ EffectsGUI.prototype._createTextRecord = function(effect, params, paramName) {
 	return div;
 };
 
+DOM = {
+	clear: function(elem) {
+		while (elem.firstChild)
+			elem.removeChild(elem.firstChild)
+	}
+}
+
 EffectsGUI.prototype._drawGradient = function(div_options, _jsObject) {
 	var effect = this._currentEffect;
 	var gradient = effect[_jsObject];
 
-	while (div_options.firstChild) 
-		div_options.removeChild(div_options.firstChild);
+	DOM.clear(div_options)
 
-	for (var i=0; i<gradient.length; i++) {
-		var record = this._createColorRecord(effect, gradient, gradient[i]);
+	for (var i = 0; i < gradient.length; i++) {
+		var record = this._createColorRecord(gradient[i]);
 		div_options.appendChild(record);
 	}
 };
 
+EffectsGUI.prototype._addNewColorStopButton = function(div_options, _jsObject) {
+	var self = this;
+	var effect = this._currentEffect;
+	var gradient = effect[_jsObject];
+	var button = document.createElement('button');
+	button.innerText = 'Add Color Stop';
+	button.addEventListener('click', function(e) {
+		var cs = [0, '#000'];
+		gradient.push(cs);
+		var record = self._createColorRecord(cs);
+		div_options.insertBefore(record, button);
+	});
+	div_options.appendChild(button);
+}
 
-EffectsGUI.prototype._createColorRecord = function(effect, gradient, colorStop) {
+
+EffectsGUI.prototype._createColorRecord = function(colorStop) {
 	var valueIndex = 0;
 	var colorIndex = 1;
 
 	var value = colorStop[valueIndex];
-	var color = colorStop[colorIndex];
+	var hexColor = colorStop[colorIndex];
 
 	var div = document.createElement('div');
-	var valueInput = this._createNumberInput(value);
-	var colorInput = this._createTextInput(color);
+	var valueInput = new Input('number', value).get()
+	var colorInput = new Input('text', hexColor).get();
 	var colorBox = document.createElement('div');
 
 	colorBox.classList.add('color-box');
 
-	function fillBox (color) {
+	function fillBox(color) {
 		colorBox.style.backgroundColor = color;
 	}
 
-	fillBox(color);
+	fillBox(hexColor);
 
-	valueInput.value = value;
-	colorInput.value = color;
-	
 	var self = this;
 	valueInput.onchange = function() {
 		var val = this.value;
@@ -170,29 +190,30 @@ EffectsGUI.prototype._createColorRecord = function(effect, gradient, colorStop) 
 	};
 
 	colorInput.onchange = function() {
-		var val = this.value;
-		colorStop[colorIndex] = val;
-		fillBox(val);
+		hexColor = this.value;
+		colorStop[colorIndex] = hexColor;
+		fillBox(hexColor);
 		self._tryInitEffect();
 	};
 
-	function colorBoxColorChange (color) {
-		var color = new Color(color);
-		var hex = color.toHex();
-		colorStop[colorIndex] = hex;
-		colorInput.value = hex;
-		fillBox(hex);
+	function colorBoxColorChange(color) {
+		hexColor = color.toHex();
+		colorStop[colorIndex] = hexColor;
+		colorInput.value = hexColor;
+		fillBox(hexColor);
 		self._tryInitEffect();
 	}
 
-	colorBox.onclick = function (e) {
+	colorBox.onclick = function(e) {
+		$('.color-box.active')[0] &&
+			$('.color-box.active')[0].classList.remove('active');
+		this.classList.add('active');
 		var radius = 150;
 		var center = {
-			x: this.offsetLeft + this.offsetWidth/2,
-			y: this.offsetTop - radius -5
+			x: this.offsetLeft + this.offsetWidth / 2,
+			y: this.offsetTop - radius - 5
 		}
-		e.stopPropagation();
-		var cp = new ColorPicker(center, radius, color);
+		var cp = new ColorPicker(center, radius, hexColor);
 		cp.addEventListener('color', colorBoxColorChange);
 	}
 
@@ -209,38 +230,39 @@ EffectsGUI.prototype._createColorRecord = function(effect, gradient, colorStop) 
 EffectsGUI.prototype._tryInitEffect = function(value) {
 	try {
 		ParticularEffectInit.call(this._currentEffect);
-	} catch(err) {}
+	} catch (err) {}
 };
 
-EffectsGUI.prototype._createTextInput = function(value) {
-	var input = document.createElement('input');
-	input.type = 'text';
-	input.value = value; 
-	return input;
-};
 
-EffectsGUI.prototype._createNumberInput = function(value) {
-	var input = document.createElement('input');
-	input.type = 'number';
-	input.value = value; 
-	return input;
-};
+EffectsGUI.prototype._activateButtons = function() {
+	document.getElementById('remove-effects').addEventListener('click', function() {
+		game.removeEffects();
+	})
+}
 
-EffectsGUI.prototype._createRangeInput = function(value) {
-	var input = document.createElement('input');
-	input.type = 'range';
 
-	var isInteger = Number.isInteger(value);
 
-	if (isInteger) {
-		input.min = 0;
-		input.max = 500;
-	} else {
+function Input(type, value) {
+	var args = Array.prototype.slice.call(arguments, 1);
+	this._input = document.createElement('input');
+	this._input.type = type;
+	type in Input && Input[type].apply(this, args);
+	this._input.value = value;
+}
+
+Input.range = function(value) {
+	var input = this._input;
+
+	if (!Number.isInteger(value)) {
+		input.step = 0.01;
 		input.min = 0;
 		input.max = 1;
-		input.step = 0.01;
+	} else {
+		input.min = 0;
+		input.max = value * 2;
 	}
-	input.value = value;
+};
 
-	return input;
+Input.prototype.get = function() {
+	return this._input;
 }

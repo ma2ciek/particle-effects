@@ -34,14 +34,14 @@ UserEventsListener.prototype._setEventListeners = function() {
 		var x = e.pageX - canvas.offsetLeft;
 		var y = e.pageY - canvas.offsetTop;
 		var p = new Point(x, y);
-		self.trigger('leftClick', p);
+		self.emit('leftClick', p);
 	});
 
 	canvas.oncontextmenu = function(e) {
 		var x = e.pageX - canvas.offsetLeft;
 		var y = e.pageY - canvas.offsetTop;
 		var p = new Point(x, y);
-		self.trigger('rightClick', p);
+		self.emit('rightClick', p);
 		e.preventDefault();
 	};
 
@@ -108,6 +108,10 @@ Game.prototype.moveEffectsTo = function(point) {
 	for (var i = 0; i < this._effects.length; i++) {
 		this._effects[i].moveTo(point);
 	}
+}
+
+Game.prototype.removeEffects = function() {
+	this._effects.length = 0;
 }
 
 function canvasClear() {

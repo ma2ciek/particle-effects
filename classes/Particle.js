@@ -9,7 +9,7 @@ Particle.prototype.calculateVelocity = function() {
 	var newX = x * this._rotCos - y * this._rotSin;
 	var newY = x * this._rotSin + y * this._rotCos;
 
-	this._velocity = new Vector([newX - this._x, newY - this._y]);
+	this._velocity = new Vector(newX - this._x, newY - this._y);
 
 	this._Vx = this._velocity[0];
 	this._Vy = this._velocity[1];
@@ -116,7 +116,7 @@ function SparksParticle (maxRadius, params) {
 
 	this._speed = params.speed * Math.random();
 
-	var v = new Vector([rand(1), rand(1)]).unit;
+	var v = new Vector(rand(1), rand(1)).unit;
 
 	this._Vx = v[0] * this._speed;
 	this._Vy = v[1] * this._speed;

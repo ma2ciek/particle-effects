@@ -9,8 +9,8 @@ ParticularEffect.prototype.moveTo = function(point) {
 
 	this._destinationX = point.x;
 	this._destinationY = point.y;
-	this._vector = new Vector([point.x - this._x, point.y - this._y]);
-	this.trigger('startMoving');
+	this._vector = new Vector(point.x - this._x, point.y - this._y);
+	this.emit('startMoving');
 };
 
 
@@ -27,7 +27,7 @@ ParticularEffect.prototype._move = function() {
 	if (dx * dx + dy * dy < this._speed * this._speed) {
 		this._x = this._destinationX;
 		this._y = this._destinationY;
-		this.trigger('movedToTarget');
+		this.emit('movedToTarget');
 	} else {
 		this._x += this._vector.unit[0] * this._speed;
 		this._y += this._vector.unit[1] * this._speed;
@@ -35,7 +35,7 @@ ParticularEffect.prototype._move = function() {
 };
 
 ParticularEffect.prototype._moveRandom = function() {
-	var v = new Vector([rand(1), rand(1)]).unit;
+	var v = new Vector(rand(1), rand(1)).unit;
 
 	this._x = this._origX + v[0] * this._speed;
 	this._y = this._origY + v[1] * this._speed;
@@ -92,7 +92,7 @@ ParticularEffect.prototype._destroyIfInvisible = function() {
 			return;
 		}
 	}
-	this.trigger('dead');
+	this.emit('dead');
 };
 
 
