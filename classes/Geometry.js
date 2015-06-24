@@ -42,11 +42,10 @@ Vector.prototype.toSize = function(x) {
 
 Vector.prototype.multiplyByMatrix = function(matrix) {
 	var v = [];
-
 	for (var i = 0; i < matrix.length; i++) {
 		var row = matrix[i];
-		if (row.length !== this.dimensions)
-			throw new Error('Wrong matrix. Expected ' + this.dimensions + ' rows in ' + (i + 1) + '. column');
+		if (row.length !== this.dim)
+			throw new Error('Wrong matrix. Expected ' + this.dim + ' rows in ' + (i + 1) + '. column');
 		var sum = 0;
 		for (var j = 0; j < row.length; j++) {
 			sum += this[j] * row[j];

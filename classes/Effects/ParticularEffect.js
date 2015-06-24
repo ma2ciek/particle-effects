@@ -13,7 +13,6 @@ ParticularEffect.prototype.moveTo = function(point) {
 	this.emit('startMoving');
 };
 
-
 ParticularEffect.prototype._move = function() {
 	if (!this._vector)
 		return;

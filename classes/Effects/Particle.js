@@ -1,8 +1,7 @@
-function Particle() {
-}
+function Particle() {}
 
 Particle.prototype.calculateVelocity = function() {
-	var angle = Math.PI * (this._time+1) / 30 * this._speed;
+	var angle = Math.PI * (this._time + 1) / 30 * this._speed;
 	var x = Math.cos(this._shift + angle) * this._paramA;
 	var y = Math.sin(this._shift + angle) * this._paramB;
 
@@ -17,7 +16,10 @@ Particle.prototype.calculateVelocity = function() {
 };
 
 Particle.prototype.speedUpBy = function(number) {
-	this._velocity.multiplyByMatrix([[number,0],[0,number]]);
+	this._velocity.multiplyByMatrix([
+		[number, 0],
+		[0, number]
+	]);
 	this._Vx = this._velocity[0];
 	this._Vy = this._velocity[1];
 };
@@ -26,7 +28,7 @@ Particle.prototype.moveStraight = function() {
 	this._time++;
 	this._x += this._Vx;
 	this._y += this._Vy;
-	if(this._maxRadius && this._x * this._x + this._y * this._y > this._maxRadius * this._maxRadius) {
+	if (this._maxRadius && this._x * this._x + this._y * this._y > this._maxRadius * this._maxRadius) {
 		this._alive = false;
 	}
 }
@@ -34,7 +36,7 @@ Particle.prototype.moveStraight = function() {
 Particle.prototype.isAlive = function() {
 	if (this._time >= this._existTime) {
 		return false;
-	} else if(!this._alive) {
+	} else if (!this._alive) {
 		return false;
 	}
 	return true;
@@ -58,7 +60,7 @@ Particle.prototype.moveAround = function() {
 
 
 
-function EllipticalParticle (maxRadius, params) {
+function EllipticalParticle(maxRadius, params) {
 	Particle.call(this);
 	this._alive = true;
 	this._x = 0;
@@ -97,7 +99,7 @@ EllipticalParticle.prototype.moveElliptical = function() {
 
 
 
-function SparksParticle (maxRadius, params) {
+function SparksParticle(maxRadius, params) {
 	Particle.call(this);
 	this._randomization = params.randomization;
 	this._x = rand(5);
@@ -111,7 +113,7 @@ function SparksParticle (maxRadius, params) {
 		this._existTime = Infinity;
 
 	this._time = 0;
-	
+
 	this._size = randInt(params.minSize, params.maxSize);
 
 	this._speed = params.speed * Math.random();
@@ -121,13 +123,12 @@ function SparksParticle (maxRadius, params) {
 	this._Vx = v[0] * this._speed;
 	this._Vy = v[1] * this._speed;
 
-	this._reducePower = params.reducePower;
+	this._fadeOut = 1 - Math.pow(2, -params.visibilityTime);
 }
 extend(SparksParticle, Particle);
 
 SparksParticle.prototype.reduce = function(x) {
-	this._size *= this._reducePower;
-	if(this._size < 1) 
+	this._size *= this._fadeOut;
+	if (this._size < 1)
 		this._alive = false;
 }
-

@@ -79,21 +79,24 @@ button.active, .button.active {
 	min-width: 140px;
 }
 
-.options > div.range > input[type="text"] {
-	width: 70px;
-	border: 1px solid #555;
-	background-color: #08d;
-	border-radius: 10px;
-	text-align: center;
-	color: white;
-	margin: 0 5px;
-	outline: none !important;
-
-	font-family: monospace;
-	font-size: 12px;
+.options > div.number > input[type="text"] {
+  width: 60px;
+  border: 1px solid #AAA;
+  background-color: #EEE;
+  border-radius: 4px;
+  text-align: center;
+  color: #333;
+  margin: 0 5px;
+  outline: none !important;
+  font-family: Arial;
+  font-size: 12px;
 }
 
-.options > div.text > input[type="text"] {
+.options > div.number > input[type="range"] {
+	width: 130px;
+}
+
+.options > div.string > input[type="text"] {
 	width: 200;
 	border: none;
 	border-bottom: 1px solid #AAA;
@@ -103,7 +106,7 @@ button.active, .button.active {
 	font-size: 12px;
 }
 
-.options > div.text > input[type="text"]:focus {
+.options > div.string > input[type="text"]:focus {
 	border-bottom: 1px solid #09f;
 }
 

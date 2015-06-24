@@ -34,7 +34,6 @@ Gradient.prototype.getColor = function(value) {
 
 Gradient.prototype.addColorStop = function(value, hexColor) {
 	var color = Color.fromHex(hexColor);
-
 	for (var i = 0; i < this._thresholds.length; i++) {
 		if (value < this._thresholds[i].value)
 			break;
@@ -54,4 +53,4 @@ Gradient.prototype.addColorStop = function(value, hexColor) {
 
 Gradient.prototype.getThreshold = function(x) {
 	return this._thresholds[x];
-}
+};

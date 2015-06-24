@@ -43,7 +43,7 @@ Sparks.particleParams = {
 	maxSize: 11,
 	maxExistTime: 500,
 	speed: 10,
-	reducePower: 0.99,
+	visibilityTime: 10,
 	randomization: 2,
 	shapeFn: '10*size/(1 + x*y)'
 };

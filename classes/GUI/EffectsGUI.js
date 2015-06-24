@@ -1,19 +1,18 @@
 var $ = document.querySelectorAll.bind(document);
 
-
 function EffectsGUI() {
 	this._effects = [Fireball, Sparks];
 }
 
 EffectsGUI.prototype.init = function() {
-	this._effectsList = this._getEffectsList();
+	this._handleEffectsList();
 	this._createLabels();
 	this._showOptions();
 	this._activateButtons();
 };
 
-EffectsGUI.prototype._getEffectsList = function() {
-	return $('ul')[0];
+EffectsGUI.prototype._handleEffectsList = function() {
+	this._effectsList = $('ul')[0];
 }
 
 EffectsGUI.prototype._createLabels = function() {
@@ -25,11 +24,10 @@ EffectsGUI.prototype._createLabels = function() {
 };
 
 EffectsGUI.prototype._createEffectsButtons = function(name) {
-	var li = document.createElement('li');
-	var a = document.createElement('a');
+	var li = DOM.create('li');
+	var a = DOM.create('a.button');
 	a.href = '#';
 	a.innerText = name;
-	a.classList.add('button');
 	a.addEventListener('click', function(e) {
 		var prevActive = this._effectsList.getElementsByClassName('active')[0];
 		prevActive && prevActive.classList.remove('active');
@@ -42,103 +40,39 @@ EffectsGUI.prototype._createEffectsButtons = function(name) {
 	this._effectsList.appendChild(li);
 }
 
+EffectsGUI.prototype.getCurrentEffect = function() {
+	return this._currentEffect;
+}
+
 EffectsGUI.prototype._showOptions = function() {
-	this._drawOptionsRecord($('#effect-options')[0], 'params');
-	this._drawOptionsRecord($('#particles-options')[0], 'particleParams');
-	this._drawGradient($('#gradient')[0], 'gradient');
+	this._drawOptionsRecords($('#effect-options')[0], 'params');
+	this._drawOptionsRecords($('#particles-options')[0], 'particleParams');
+	this._drawColorRecords($('#gradient')[0], 'gradient');
 	this._addNewColorStopButton($('#gradient')[0], 'gradient');
 }
 
-EffectsGUI.prototype._drawOptionsRecord = function(div_options, _jsObject) {
+
+
+
+EffectsGUI.prototype._drawOptionsRecords = function(div_options, _jsObject) {
 	var effect = this._currentEffect;
 	var params = effect[_jsObject];
+	var self = this;
+	DOM.empty(div_options);
 
-	while (div_options.firstChild)
-		div_options.removeChild(div_options.firstChild);
-
-	var record;
 	for (var paramName in params) {
-
-		var param = params[paramName];
-
-		if (typeof param === 'number')
-			record = this._createNumberRecord(effect, params, paramName);
-		else if (typeof param === 'string')
-			record = this._createTextRecord(effect, params, paramName);
-
+		var pObj = new Pointer(params, paramName);
+		var record = new ListRecord(effect, pObj);
+		record.addEventListener('change', self._tryInitEffect.bind(self));
 		div_options.appendChild(record);
 	}
 };
 
-EffectsGUI.prototype._createNumberRecord = function(effect, params, paramName) {
-	var value = params[paramName];
-	var div = document.createElement('div');
-	var label = document.createElement('label');
-	var textInput = new Input('text', value).get();
-	var rangeInput = new Input('range', value).get();
-
-	label.innerText = paramName + ':';
-
-	var self = this;
-	rangeInput.onchange = rangeInput.oninput = function() {
-		var val = Number(this.value);
-		textInput.value = val;
-		params[paramName] = val;
-		self._tryInitEffect();
-	};
-
-	textInput.onchange = function() {
-		var val = Number(this.value);
-		rangeInput.value = val;
-		params[paramName] = val;
-		self._tryInitEffect();
-	};
-
-	div.appendChild(label);
-	div.appendChild(rangeInput);
-	div.appendChild(textInput);
-
-	div.classList.add('range');
-
-	return div;
-}
-
-EffectsGUI.prototype._createTextRecord = function(effect, params, paramName) {
-	var value = params[paramName];
-	var div = document.createElement('div');
-	var label = document.createElement('label');
-
-	var input = new Input('text', value).get();
-
-	label.innerText = paramName + ':';
-
-	var self = this;
-	input.onchange = function() {
-		var val = this.value;
-		params[paramName] = val;
-		self._tryInitEffect();
-	};
-
-	div.appendChild(label);
-	div.appendChild(input);
-
-	div.classList.add('text');
-
-	return div;
-};
-
-DOM = {
-	clear: function(elem) {
-		while (elem.firstChild)
-			elem.removeChild(elem.firstChild)
-	}
-}
-
-EffectsGUI.prototype._drawGradient = function(div_options, _jsObject) {
+EffectsGUI.prototype._drawColorRecords = function(div_options, _jsObject) {
 	var effect = this._currentEffect;
 	var gradient = effect[_jsObject];
 
-	DOM.clear(div_options)
+	DOM.empty(div_options)
 
 	for (var i = 0; i < gradient.length; i++) {
 		var record = this._createColorRecord(gradient[i]);
@@ -150,7 +84,7 @@ EffectsGUI.prototype._addNewColorStopButton = function(div_options, _jsObject) {
 	var self = this;
 	var effect = this._currentEffect;
 	var gradient = effect[_jsObject];
-	var button = document.createElement('button');
+	var button = DOM.create('button');
 	button.innerText = 'Add Color Stop';
 	button.addEventListener('click', function(e) {
 		var cs = [0, '#000'];
@@ -169,10 +103,10 @@ EffectsGUI.prototype._createColorRecord = function(colorStop) {
 	var value = colorStop[valueIndex];
 	var hexColor = colorStop[colorIndex];
 
-	var div = document.createElement('div');
+	var div = DOM.create('div');
 	var valueInput = new Input('number', value).get()
 	var colorInput = new Input('text', hexColor).get();
-	var colorBox = document.createElement('div');
+	var colorBox = DOM.create('div');
 
 	colorBox.classList.add('color-box');
 
@@ -217,7 +151,6 @@ EffectsGUI.prototype._createColorRecord = function(colorStop) {
 		cp.addEventListener('color', colorBoxColorChange);
 	}
 
-
 	div.appendChild(valueInput);
 	div.appendChild(colorBox);
 	div.appendChild(colorInput);
@@ -235,34 +168,82 @@ EffectsGUI.prototype._tryInitEffect = function(value) {
 
 
 EffectsGUI.prototype._activateButtons = function() {
-	document.getElementById('remove-effects').addEventListener('click', function() {
+	$('#remove-effects')[0].addEventListener('click', function() {
 		game.removeEffects();
 	})
 }
 
-
-
-function Input(type, value) {
-	var args = Array.prototype.slice.call(arguments, 1);
-	this._input = document.createElement('input');
-	this._input.type = type;
-	type in Input && Input[type].apply(this, args);
-	this._input.value = value;
+function ListRecord(effect, params, paramName) {
+	var type = typeof params[paramName];
+	var record;
+	if (type == 'number')
+		record = this._createNumberRecord(effect, params, paramName);
+	else if (type == 'string')
+		record = this._createTextRecord(effect, params, paramName);
+	console.log(record);
+	return record;
 }
 
-Input.range = function(value) {
-	var input = this._input;
+ListRecord.prototype._createNumberRecord = function(effect, params, paramName) {
+	var value = params[paramName];
+	var div = DOM.create('div');
+	var label = DOM.create('label');
+	var textInput = new Input('text', value).get();
+	var rangeInput = new Input('range', value).get();
 
-	if (!Number.isInteger(value)) {
-		input.step = 0.01;
-		input.min = 0;
-		input.max = 1;
-	} else {
-		input.min = 0;
-		input.max = value * 2;
-	}
+	label.innerText = paramName + ':';
+
+	var self = this;
+	rangeInput.onchange = rangeInput.oninput = function() {
+		var val = Number(this.value);
+		textInput.value = val;
+		params[paramName] = val;
+		self._tryInitEffect();
+	};
+
+	textInput.onchange = function() {
+		var val = Number(this.value);
+		rangeInput.value = val;
+		params[paramName] = val;
+		self._tryInitEffect();
+	};
+
+	div.appendChild(label);
+	div.appendChild(rangeInput);
+	div.appendChild(textInput);
+
+	div.classList.add('range');
+
+	return div;
+}
+
+ListRecord.prototype._createTextRecord = function(effect, params, paramName) {
+	var value = params[paramName];
+	var div = DOM.create('div');
+	var label = DOM.create('label');
+
+	var input = new Input('text', value).get();
+
+	label.innerText = paramName + ':';
+
+	var self = this;
+	input.onchange = function() {
+		var val = this.value;
+		params[paramName] = val;
+		self._tryInitEffect();
+	};
+
+	div.appendChild(label);
+	div.appendChild(input);
+
+	div.classList.add('text');
+
+	return div;
 };
 
-Input.prototype.get = function() {
-	return this._input;
-}
+ListRecord.prototype._tryInitEffect = function(value) {
+	var currentEffect = effectsGUI.getCurrentEffect();
+	try {
+		ParticularEffectInit.call(this._currentEffect);
+	} catch (err) {}
+};
