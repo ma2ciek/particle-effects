@@ -8,7 +8,7 @@ function ListRecord(effect, obj) {
 	this.effect = effect;
 	this.value = obj.value;
 
-	this.div = DOM.create('div.' + type);
+	this.div = _Q('div.' + type);
 
 	this._connections = [];
 
@@ -21,9 +21,10 @@ function ListRecord(effect, obj) {
 }
 extend(ListRecord, EventEmitter);
 
-ListRecord.prototype.addLabel = function (parent, text) {
-	var label = DOM.create('label');
-	label.innerText = text;
+ListRecord.prototype.addLabel = function(parent, text) {
+	var label = _Q('label', {
+		text: text
+	});
 	parent.appendChild(label);
 };
 
@@ -48,7 +49,7 @@ ListRecord.prototype._createNumberRecord = function() {
 ListRecord.prototype._createTextRecord = function() {
 	var input = new Input('text', this.value).get();
 
-	this._connect('string', [this.obj, input]);
+	this._connect('text', [this.obj, input]);
 
 	this.addLabel(this.div, this.obj.child + ': ')
 	this.div.appendChild(input);

@@ -43,7 +43,7 @@ Sparks.particleParams = {
 	maxSize: 11,
 	maxExistTime: 500,
 	speed: 10,
-	visibilityTime: 10,
+	visibilityTime: 7,
 	randomization: 2,
 	shapeFn: '10*size/(1 + x*y)'
 };
@@ -95,3 +95,42 @@ Sparks.prototype._changeParticlePower = function() {
 		this._particles[i].moveAround();
 	}
 };
+
+
+
+
+
+
+function SparksParticle(maxRadius, params) {
+	Particle.call(this);
+	this._randomization = params.randomization;
+	this._x = rand(5);
+	this._y = rand(5);
+	this._alive = true;
+
+	this._maxRadius = maxRadius;
+	if (Number.isFinite(params.maxExistTime))
+		this._existTime = randInt(params.maxExistTime / 2, params.maxExistTime)
+	else
+		this._existTime = Infinity;
+
+	this._time = 0;
+
+	this._size = randInt(params.minSize, params.maxSize);
+
+	this._speed = params.speed * Math.random();
+
+	var v = new Vector(rand(1), rand(1)).unit;
+
+	this._Vx = v[0] * this._speed;
+	this._Vy = v[1] * this._speed;
+
+	this._fadeOut = 1 - Math.pow(2, -params.visibilityTime);
+}
+extend(SparksParticle, Particle);
+
+SparksParticle.prototype.reduce = function(x) {
+	this._size *= this._fadeOut;
+	if (this._size < 1)
+		this._alive = false;
+}

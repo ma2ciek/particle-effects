@@ -47,7 +47,7 @@ var DOM = {
 		while (elem.firstChild)
 			elem.removeChild(elem.firstChild)
 	},
-	create: function(string) {
+	create: function(string, obj) {
 		// TODO: Implement '>', '*', '()' etc.
 		var elName = string.match(/[a-zA-Z]+/);
 		var el = document.createElement(elName);
@@ -56,15 +56,43 @@ var DOM = {
 		if (hash) el.id = hash[0].slice(1);
 
 		var dots = string.match(/\.[a-zA-Z][a-zA-Z0-9-]*/g);
-
-		if(dots)
-			while (dots.length > 0) 
+		if (dots)
+			while (dots.length > 0)
 				el.classList.add(dots.shift().slice(1));
+
+		// queries syntax:
+		// ?prop1=value1&prop2=value2 (...)
+		var queries = string.match(/[\?|&][a-zA-Z-]*=[a-zA-Z-#]*/g);
+		if (queries)
+			for (var i = 0; i < queries.length; i++) {
+				console.log(queries[i]);
+				var prop = queries[i].match(/[\?|&][a-zA-Z-]*/)[0].slice(1);
+				var value = queries[i].match(/=[a-zA-Z-#]*/)[0].slice(1);
+
+				if(prop in this)
+					this[prop].call(el, el, value);
+				else 
+					el[prop] = value;
+			}
+
+		for(var prop in obj) {
+			if(prop in this)
+					this[prop].call(el, el, obj[prop]);
+				else 
+					el[prop] = obj[prop]
+
+		}
+
 		return el;
+	},
+	text: function(elem, text) {
+		navigator.browserInfo.browser == 'Firefox' ?
+			elem.textContent = text :
+			elem.innerText = text;
+		return elem;
 	}
 }
-
-
+var _Q = DOM.create.bind(DOM);
 
 function Pointer(parent, child) {
 	this.parent = parent;
@@ -85,3 +113,24 @@ Pointer.prototype.setChild = function(child) {
 	this.child = child;
 	this.value = this.parent[child];
 };
+
+// http://stackoverflow.com/users/80860/kennebec
+navigator.browserInfo = (function() {
+	var ua = navigator.userAgent,
+		tem,
+		M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+	if (/trident/i.test(M[1])) {
+		tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
+		return 'IE ' + (tem[1] || '');
+	}
+	if (M[1] === 'Chrome') {
+		tem = ua.match(/\b(OPR|Edge)\/(\d+)/);
+		if (tem != null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+	}
+	M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
+	if ((tem = ua.match(/version\/(\d+)/i)) != null) M.splice(1, 1, tem[1]);
+	return {
+		browser: M[0],
+		version: M[1]
+	};
+})();

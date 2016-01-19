@@ -1,5 +1,6 @@
 var ColorPicker = (function() {
 
+	var parentElement;
 	var canvas, ctx;
 	var position = {}
 	var radius;
@@ -31,13 +32,17 @@ var ColorPicker = (function() {
 	ColorPicker.prototype = new EventEmitter();
 	ColorPicker.prototype.constructor = ColorPicker;
 
+	ColorPicker.prototype.appendTo = function(element) {
+		parentElement = element;
+		element.appendChild(canvas);
+	};
+
 	function createCanvas() {
 		canvas = document.createElement('canvas');
 		ctx = canvas.getContext('2d');
 		canvas.id = 'color-picker';
 		canvas.width = radius * 2;
 		canvas.height = radius * 2;
-		document.body.appendChild(canvas);
 	}
 
 	function moveToNewPosition() {
@@ -175,6 +180,8 @@ var ColorPicker = (function() {
 	}
 
 	function hideCanvas(e) {
+		if(e.target === canvas)
+			return;
 		canvas.style.visibility = 'hidden';
 		canvas.removeEventListener('click', getColor);
 		document.removeEventListener('click', hideCanvas);
@@ -188,16 +195,13 @@ var ColorPicker = (function() {
 	}
 
 	function getColor(e) {
-		var point = new Point(e.pageX - canvas.offsetLeft, e.pageY - canvas.offsetTop);
+		var point = new Point(e.pageX - this.offsetLeft + parentElement.scrollLeft, e.pageY - this.offsetTop + parentElement.scrollTop);
 		var px = ctx.getImageData(point.x, point.y, 1, 1).data;
 		if (px[3] === 255) {
 			var color = Color.fromArr(px);
-
 			rainbow.draw();
 			addCheck(point);
-
 			currentInstance.emit('color', color);
-			e.stopPropagation();
 		}
 	}
 
@@ -207,9 +211,6 @@ var ColorPicker = (function() {
 		if(clicked) {
 			getColor.call(e.target, e);
 		}
-
-
 	}
-
 	return ColorPicker;
 })();

@@ -1,4 +1,4 @@
-function Fireball(point, vector) {
+function Vortex(point, vector) {
 	"use strict";
 	ParticularEffect.call(this);
 
@@ -24,37 +24,38 @@ function Fireball(point, vector) {
 
 	// Object.preventExtensions(this);
 }
-extend(Fireball, ParticularEffect);
+extend(Vortex, ParticularEffect);
 
-Fireball.params = {
+Vortex.params = {
 	speed: 10,
-	radius: 20,
+	radius: 120,
 	maxRadius: 120,
 	growingSpeed: 2,
 	explodingRadius: 300,
 	explosionSpeed: 5,
-	maxParticles: 450,
+	maxParticles: 200,
 	drawingThreshold: 15,
-	particlesGrowth: 10,
+	particlesGrowth: 1,
 	contrailFactor: 0.8,
 };
 
-Fireball.particleParams = {
+Vortex.particleParams = {
 	minSize: 7,
 	maxSize: 11,
-	maxExistTime: 200,
+	maxExistTime: Infinity,
 	orbitalSpeed: 0.5,
+	gravity: 200,
 	shapeFn: '4*size*size/(1 + x*x + y*y)'
 };
 
-Fireball.gradient = [
+Vortex.gradient = [
 	[10, '#000'],
 	[100, '#F00'],
 	[300, '#FF0'],
 	[600, '#FFF'],
 ];
 
-Fireball.prototype.animate = function() {
+Vortex.prototype.animate = function() {
 	if (this._state === 'growing') {
 		this._move();
 		this._updateRadius();
@@ -68,7 +69,7 @@ Fireball.prototype.animate = function() {
 	this._draw();
 };
 
-Fireball.prototype._explode = function() {
+Vortex.prototype._explode = function() {
 	this._state = 'exploding';
 	this._maxParticles = 0;
 	for (var i = 0; i < this._particles.length; i++) {
@@ -81,7 +82,7 @@ Fireball.prototype._explode = function() {
 	this._transferTemperatureArray();
 };
 
-Fireball.prototype._transferTemperatureArray = function() {
+Vortex.prototype._transferTemperatureArray = function() {
 
 	var oldTemp = this._oldTemperature;
 	var newTemp = new Uint16Array(this._radius * this._radius * 4);
@@ -96,18 +97,20 @@ Fireball.prototype._transferTemperatureArray = function() {
 	this._oldTemperature = newTemp;
 };
 
-Fireball.prototype._createParticle = function() {
-	var p = new EllipticalParticle(this._radius, this._particlesParams);
+Vortex.prototype._createParticle = function() {
+	var p = new VortexParticle(this._radius, this._particlesParams);
 	this._particles.push(p);
 };
 
 
 
-function EllipticalParticle(maxRadius, params) {
+function VortexParticle(maxRadius, params) {
 	Particle.call(this);
 	this._alive = true;
 	this._x = 0;
 	this._y = 0;
+	this._minR = 20;
+	
 	if (Number.isFinite(params.maxExistTime))
 		this._existTime = randInt(params.maxExistTime / 2, params.maxExistTime)
 	else
@@ -116,19 +119,21 @@ function EllipticalParticle(maxRadius, params) {
 	this._time = 0;
 	this._size = randInt(params.minSize, params.maxSize);
 
+	this._gravity = params.gravity;
+
 	// elliptical params:
-	this._paramA = randInt(this._size / 2, maxRadius - this._size / 2);
-	this._paramB = randInt(0, maxRadius / 2)
+	this._paramA = randInt(maxRadius/ 2, maxRadius - this._size / 2);
+	this._paramB = 30;
 	this._speed = params.orbitalSpeed;
 	this._shift = rand(Math.PI * 2);
 
-	var rot = this._rotateAngle = rand(Math.PI * 2);
+	var rot = 0;
 	this._rotCos = Math.cos(rot);
 	this._rotSin = Math.sin(rot);
 }
-extend(EllipticalParticle, Particle);
+extend(VortexParticle, Particle);
 
-EllipticalParticle.prototype.moveElliptical = function() {
+VortexParticle.prototype.moveElliptical = function() {
 	this._time++;
 
 	var angle = Math.PI * this._time / 30 * this._speed;
@@ -138,4 +143,12 @@ EllipticalParticle.prototype.moveElliptical = function() {
 	//rotate ellipse
 	this._x = x * this._rotCos - y * this._rotSin;
 	this._y = x * this._rotSin + y * this._rotCos;
+	
+	this._paramA *= (1 - 1/this._gravity);
+	this._paramB *= (1 - 1/this._gravity);
+	
+	if(this._x*this._x + this._y * this._y < this._minR) {
+		//TODO: promieniowanie
+		this._alive = false;
+	}
 };

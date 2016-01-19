@@ -1,6 +1,7 @@
 function ParticularEffect() {
 	EventEmitter.call(this);
 }
+
 extend(ParticularEffect, EventEmitter);
 
 ParticularEffect.prototype.moveTo = function(point) {

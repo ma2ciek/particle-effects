@@ -92,10 +92,6 @@ button.active, .button.active {
   font-size: 12px;
 }
 
-.options > div.number > input[type="range"] {
-	width: 130px;
-}
-
 .options > div.string > input[type="text"] {
 	width: 200;
 	border: none;
@@ -112,16 +108,21 @@ button.active, .button.active {
 
 div.color {
 	display: flex;
+	margin: 5px 0;
 }
 
-div.color div.color-box {
+
+
+div.color button.color-box {
 	width: 100px;
+	margin: 0 5px;
 	cursor: pointer;
 	box-sizing: border-box;
+	border: 1px solid #AAA;
 }
 
-div.color div.color-box.active {
-	border: 2px solid;
+div.color button.color-box.active {
+	border: 1px solid #000;
 }
 
 #color-picker {

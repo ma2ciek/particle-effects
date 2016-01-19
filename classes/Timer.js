@@ -29,10 +29,14 @@ Timer.prototype.getAT = function() {
 	return this._atSum / this._atArr.length | 0;
 }
 
-Timer.prototype.drawAPS = function() {
+Timer.prototype.drawAPS = navigator.browserInfo.browser == 'Firefox' ? function() {
+	this._drawingElement.textContent = this.getAPS();
+} : function() {
 	this._drawingElement.innerText = this.getAPS();
 };
 
-Timer.prototype.drawAT = function() {
-	this._drawingElement.innerText = this.getAT() + 'ms';
-}
+Timer.prototype.drawAT = navigator.browserInfo.browser == 'Firefox' ? function() {
+	this._drawingElement.textContent = this.getAT();
+} : function() {
+	this._drawingElement.innerText = this.getAT();
+};
