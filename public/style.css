@@ -1,3 +1,5 @@
+/* TODO: Add LATO font-face */
+
 body {
 	margin: 0;
 	font-family: monospace;
@@ -19,7 +21,7 @@ div#left-side {
 h3 {
 	margin: 10px 0 5px;
 	color: #333;
-	font-family: Lato;
+	font-family: Lato, Helvetica, sans-serif;
 }
 
 h3:first-child {

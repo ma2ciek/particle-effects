@@ -48,7 +48,7 @@ EffectsGUI.prototype.getCurrentEffect = function() {
 
 EffectsGUI.prototype._showOptions = function() {
 	this._drawOptionsRecords($('#effect-options')[0], 'params');
-	this._drawOptionsRecords($('#particles-options')[0], 'particleParams');
+	this._drawOptionsRecords($('#particle-options')[0], 'particleParams');
 	this._drawColorRecords($('#gradient')[0], 'gradient');
 	this._addNewColorStopButton($('#gradient')[0], 'gradient');
 }

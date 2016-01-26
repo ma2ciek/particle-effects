@@ -5,6 +5,7 @@ var userEventsListener;
 
 var game;
 var effectsGUI;
+
 window.onload = function() {
 	canvasInit();
 
@@ -14,7 +15,6 @@ window.onload = function() {
 	effectsGUI.init();
 
 	game = new Game();
-
 	game.nextFrame();
 	game.addEventHandlers();
 };
@@ -55,8 +55,6 @@ function Game() {
 	this._effects = [];
 	this._FPSTimer = new Timer('#fps');
 	this._APSTimer = new Timer('#time');
-
-	window.effects = this._effects;
 }
 
 Game.prototype.nextFrame = function() {
