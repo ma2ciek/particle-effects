@@ -1,0 +1,22 @@
+{
+  "name": "particle-effects",
+  "version": "0.0.1",
+  "description": "Effects created with JS and Canvas's 2d context",
+  "main": "server.js",
+  "engines": {
+    "node": "5.4.0"
+  },
+  "dependencies": {
+    "express": "~4.9.x"
+  },
+  "keywords": [
+    "particle effects",
+    "js",
+    "html5",
+    "canvas"
+  ],
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Maciej Bukowski"
+}

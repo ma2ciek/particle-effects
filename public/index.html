@@ -1,0 +1,72 @@
+<html>
+	<head>
+        <meta charset="utf-8">
+        <meta name="author" content="Maciej Bukowski">
+        <meta name="keywords" content="Particle effects, Canvas, JavaScript">
+        <meta name="description" content="Particle effects written in JS on the Canvas's 2d context">
+        <meta name="viewport" content="width=device-width initial-scale=1.0">
+        <meta name="application-name" content="Particle effects in JS">
+        
+        <title>Particle effects</title>
+        
+        <link rel="icon" href="fireball.png">
+        
+		<link rel="stylesheet" type="text/css" href="style/input.css" >
+		<link rel="stylesheet" type="text/css" href="style.css">
+		
+		<script src="utils.js"></script>
+
+		<script src="classes/EventEmitter.js"></script>
+		<script src="classes/Color.js"></script>
+		<script src="classes/Geometry.js"></script>
+		<script src="classes/Gradient.js"></script>
+		<script src="classes/Timer.js"></script>
+		
+		<script src="classes/GUI/Connection.js"></script>
+
+		<script src="classes/GUI/EffectsGUI.js"></script>
+		<script src="classes/GUI/ColorPicker.js"></script>
+		<script src="classes/GUI/Input.js"></script>
+		<script src="classes/GUI/ListRecord.js"></script>
+
+		<script src="classes/Effects/Particle.js"></script>
+		<script src="classes/Effects/ParticularEffect.js"></script>
+		<script src="classes/Effects/Fireball.js"></script>
+		<script src="classes/Effects/Vortex.js"></script>
+		<script src="classes/Effects/Spark.js"></script>
+
+		<script src="main.js"></script>
+	</head>
+	<body>
+		<canvas></canvas>
+		<div id ="left-side">
+			<h3>Canvas Stats</h3>
+			<div id="labels">
+				<div>
+					APS: 
+					<span id="time"></span>
+				</div>
+				<div>
+					FPS: 
+					<span id="fps"></span>
+				</div>
+				<div id="bgColor"></div>
+			</div>
+			<button id="remove-effects">Remove all effects</button>
+			
+			<h3>Effects</h3>
+			<ul id="effects"></ul>
+
+			<h3>Effect options</h3>
+			<div id="effect-options" class="options"></div>
+
+			<h3>Particles options</h3>
+			<div id="particles-options" class="options"></div>
+			
+			<h3>Gradient</h3>
+			<div id="gradient"></div>
+
+			<div id="console"></div>
+		</div>
+	</body>
+</html>
